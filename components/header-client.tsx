@@ -3,6 +3,7 @@
 import React from 'react'
 import LogoContainer from './logo-container'
 import NavbarRoutes from './navbar-routes'
+import ToggleContainer from './toggle-container'
 
 interface HeaderClientProps {
     notifications?:[]
@@ -16,6 +17,7 @@ const HeaderClient = ({notifications}:HeaderClientProps) => {
                 {/* Menu */}
                 <NavbarRoutes/>
                 {/* Toggle */}
+                <ToggleContainer notifications={notifications}/>
             </div>
         </header>
     )
