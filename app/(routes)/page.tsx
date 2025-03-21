@@ -4,8 +4,10 @@ import React from 'react'
 const Homepage = () => {
   return (
     <div className='flex-col my-12'>
-      Home Page 
-      {/* <UserButton/> */}
+      {/* Banner */}
+      {/* Services */}
+      {/* Subscribe */}
+      {/* Why Us */}
     </div>
   )
 }
