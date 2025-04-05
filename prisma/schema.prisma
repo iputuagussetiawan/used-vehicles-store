@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  // clerkId      String  @unique
+  email        String  @unique
+  name         String?
+  contact      String?
+  address      String?
+  location     String?
+  profileImage String?
+  role         String  @default("user")
+
+  // relations for other colleciton 
+  vehicles      Vehicle[]
+  favourites    Favourite[]
+  views         View[]
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  slug          String        @unique
+  subCategories SubCategory[]
+  vehicles      Vehicle[]
+}
+
+model SubCategory {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  slug       String    @unique
+  categoryId String
+  category   Category  @relation(fields: [categoryId], references: [id])
+  vehicles   Vehicle[]
+}
+
+model Vehicle {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  make          String
+  model         String
+  year          Int
+  price         Float
+
+  //foreign key
+  categoryId    String
+  subCategoryId String
+  ownerId       String
+ 
+  //relation
+  owner       User        @relation(fields: [ownerId], references: [id])
+  category    Category    @relation(fields: [categoryId], references: [id])
+  subCategory SubCategory @relation(fields: [subCategoryId], references: [id])
+
+  coverImage   String
+  images       String @default("[]")
+  status       String @default("pending")
+  report       String @default("low-mileage")
+  location     String
+  state        String
+  district     String
+  postalCode   String
+  mileage      String
+  engine       String
+  transmission String
+
+  favourites    Favourite[]
+  views         View[]
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([make])
+}
+
+model Favourite {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  vehicleId String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, vehicleId])
+}
+
+model View {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  vehicleId String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, vehicleId])
+}
+
+model Notification {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  message String
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+
+  type   String
+  status String @default("pending")
+
+  vehicleId String?
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+
+  isRead Boolean? @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
