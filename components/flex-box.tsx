@@ -5,10 +5,10 @@ import React from 'react'
 interface FlexBoxProps extends React.HTMLAttributes<HTMLDivElement>{
     children: React.ReactNode
 }
-export const flexBox = ({children, className="", ...props}: FlexBoxProps) => {
+export const FlexBox = ({children, className="", ...props}: FlexBoxProps) => {
     return (
         <div {...props} className={cn("flex items-center", className)}>{children}</div>
     )
 }
 
-export default flexBox;
+export default FlexBox;

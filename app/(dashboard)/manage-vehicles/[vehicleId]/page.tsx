@@ -25,14 +25,14 @@ const ManageVehicle = async ({ params }: { params: { vehicleId: string } }) => {
     const subCategories=await getSubCategories();
 
     // const vehicle=await getVehicleById(vehicleId);
-    console.log(vehicle);
-    console.log(categories);
-    console.log(subCategories);
+    // console.log(vehicle);
+    // console.log(categories);
+    // console.log(subCategories);
     return (
         <div className='flex-col'>
             <div className='flex-1 space-y-5 pt-4 '>
                 {/* vehicle form */}
-                <VehicleForm initialData={vehicle} categories={[]} subCategories={[]} />
+                <VehicleForm initialData={vehicle} categories={categories} subCategories={subCategories} />
             </div>
         </div>
     );
