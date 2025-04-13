@@ -21,6 +21,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { set } from 'date-fns';
 import { Combo } from 'next/font/google';
 import ComboBox from '@/components/combo-box';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { indiaStatesAndDistricts, indonesiaStatesAndDistricts } from '@/lib/helpers';
 interface VehicleFormProps {
     initialData:Vehicle | null;
     categories:Category[] | null;
@@ -108,7 +113,58 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
     const [popoverOpen, setPopoverOpen] = useState(false);
     const [selectedYear, setSelectedYear] = useState<Date | null>(null);
 
+    const [selectedState, setSelectedState] = useState(initialData?.state || "");
+    const [selectedDistrict, setSelectedDistrict] = useState(initialData?.district || "");
+    const [districtOptions, setDistrictOptions] = useState<string[]>([]);
 
+    const handleStateChange=(state:string)=>{
+        setSelectedState(state);
+        form.setValue("state", state);
+
+        const selectedStateObject = indonesiaStatesAndDistricts.find(item => item.state === state);
+
+        const districts = 
+            selectedStateObject?.districts.map(
+                (districtObj) =>districtObj.district
+            ) || [];
+
+        setDistrictOptions(districts);
+        setSelectedDistrict("");
+        form.setValue("district", "");
+        form.setValue("postalCode", "");
+    }
+
+
+
+    const handleDistrictChange=(district:string)=>{
+        setSelectedDistrict(district)
+        form.setValue("district", district);
+        const selectedStateObject = indonesiaStatesAndDistricts.find(item => item.state === selectedState);
+        const selectedDistrictObject = selectedStateObject?.districts.find(item => item.district === district);
+
+        const postalCode = selectedDistrictObject?.postalCodes[0].toString() || "";
+        form.setValue("postalCode", postalCode);
+    }
+
+    useEffect(() => {
+        if(initialData?.year){
+            setSelectedYear(new Date(initialData.year, 0 , 1));
+        }
+
+        if(selectedState){
+            const selectedStateObject = indonesiaStatesAndDistricts.find(item => item.state === selectedState);
+            const districts = 
+                selectedStateObject?.districts.map(
+                    (districtObj) =>districtObj.district
+                ) || [];
+
+                if(selectedDistrict){
+                    const selectedDistrictObject = selectedStateObject?.districts.find(item => item.district === selectedDistrict);
+                    const postalCode = selectedDistrictObject?.postalCodes[0].toString() || "";
+                    form.setValue("postalCode", postalCode);
+                }
+        }
+    }, [initialData, selectedState, selectedDistrict, form]);
 
 
     const title=initialData ? "Edit Vehicle Information" : "Add New Vehicle"
@@ -166,7 +222,7 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                 <Separator className='my-4' />
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(obSubmit)} className='space-y-8 w-full p-4 py-6 bg-neutral-50/60 rounded-lg'>
-                        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+                        <div className='grid align-items-center grid-cols-1 md:grid-cols-3 gap-8'>
                             <FormField 
                                 control={form.control}
                                 name="make"
@@ -306,13 +362,203 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                                 )}
                             />
 
-                            
-                           
+                            <FormField 
+                                control={form.control}
+                                name="location"
+                                render={({field})=>(
+                                    <FormItem>
+                                        <FormLabel>Location</FormLabel>
+                                        <div className='flex item-center space-x-4'>
+                                            <FormControl>
+                                                <Textarea 
+                                                    disabled={isSubmitting}
+                                                    placeholder="Vehicle location here.."
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField 
+                                control={form.control}
+                                name="transmission"
+                                render={({field})=>(
+                                    <FormItem>
+                                        <FormLabel>Transmission</FormLabel>
+                                        <FormControl>
+                                            <RadioGroup defaultValue="automatic" className='grid grid-cols-2 gap-2 border p-2 rounded-lg'>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="automatic" id="automatic" />
+                                                    <Label htmlFor="automatic" className='text-sm font-medium'>Automatic</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="manual" id="manual" />
+                                                    <Label htmlFor="manual" className='text-sm font-medium'>Manual</Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField 
+                                control={form.control}
+                                name="transmission"
+                                render={({field})=>(
+                                    <FormItem>
+                                        <FormLabel>Engine Type</FormLabel>
+                                        <FormControl>
+                                            <RadioGroup defaultValue="ev" className='grid grid-cols-2 gap-2 border p-2 rounded-lg'>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="ev" id="ev" />
+                                                    <Label htmlFor="ev" className='text-sm font-medium'>EV</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="hybrid" id="hybrid" />
+                                                    <Label htmlFor="hybrid" className='text-sm font-medium'>Hybrid</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="petrol" id="petrol" />
+                                                    <Label htmlFor="petrol" className='text-sm font-medium'>Petrol</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="diesel" id="diesel" />
+                                                    <Label htmlFor="diesel" className='text-sm font-medium'>Diesel</Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <div>
+                                <FormField 
+                                    control={form.control}
+                                    name="mileage"
+                                    render={({field})=>(
+                                        <FormItem>
+                                            <FormLabel>Mileage</FormLabel>
+                                            <div className='flex item-center space-x-4'>
+                                                <FormControl>
+                                                    <Input 
+                                                        type="number" 
+                                                        disabled={isSubmitting}
+                                                        placeholder="Vehicle Mileage here.."
+                                                        {...field}
+                                                        value={field.value ?? ''} // Ensure value is never `null`
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+
+                                                            // Handle empty string or numeric values
+                                                            if (value === '' || !isNaN(Number(value))) {
+                                                            field.onChange(value === '' ? '' : Number(value));
+                                                            }
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <p className='text-sm text-gray-500'>Please Inter Mileage In KM (e.g., 1200 km)</p>
+                            </div>
+
+                            <FormField 
+                                control={form.control}
+                                name="state"
+                                render={({field})=>(
+                                    <FormItem>
+                                        <FormLabel>State</FormLabel>
+                                        <FormControl>
+                                            <Select onValueChange={handleStateChange} defaultValue={field.value}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select State" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {indonesiaStatesAndDistricts && indonesiaStatesAndDistricts.map((state, index) => (
+                                                        <SelectItem key={index} value={state.state}>
+                                                            {state.state}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField 
+                                control={form.control}
+                                name="district"
+                                render={({field})=>(
+                                    <FormItem>
+                                        <FormLabel>District</FormLabel>
+                                        <FormControl>
+                                            <Select onValueChange={handleDistrictChange} defaultValue={field.value}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select District" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {districtOptions && districtOptions.map((district, index) => (
+                                                        <SelectItem key={district} value={district}>
+                                                            {district}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField 
+                                control={form.control}
+                                name="postalCode"
+                                render={({field})=>(
+                                    <FormItem>
+                                        <FormLabel>Postal Code</FormLabel>
+                                        <FormControl>
+                                            <Input 
+                                                disabled
+                                                {...field}
+                                                placeholder='Enter Postal Code'
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name='report'
+                                render={({ field }) => (
+                                    <FormItem className='flex-col flex space-y-4'>
+                                        <FormLabel>Report</FormLabel>
+                                        <FormControl>
+                                            <ComboBox
+                                                items={reportOptions} 
+                                                placeholder='Select a Report' 
+                                                onSelect={value=>field.onChange(value)} 
+                                                selectedValue={field.value ?? ''}
+                                            ></ComboBox>
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
 
                         </div>
                     </form>
                 </Form>
-         
         </React.Fragment>
     )
 }
