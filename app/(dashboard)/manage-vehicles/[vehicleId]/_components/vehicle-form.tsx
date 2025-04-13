@@ -11,7 +11,7 @@ import FlexBox from '@/components/flex-box';
 import CustomBreadcrumb from '@/components/custom-breadcrumb';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, Loader2, Trash2 } from 'lucide-react';
+import { CalendarIcon, ImageUp, Loader2, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -26,6 +26,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { indiaStatesAndDistricts, indonesiaStatesAndDistricts } from '@/lib/helpers';
+import ImagesUploads from '@/components/images-uploads';
 interface VehicleFormProps {
     initialData:Vehicle | null;
     categories:Category[] | null;
@@ -554,8 +555,27 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                                     </FormItem>
                                 )}
                             />
-
-
+                            <div className="col-span-3">
+                                {/* cover image */}
+                                <FormField
+                                    control={form.control}
+                                    name='coverImage'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Cover Image</FormLabel>
+                                            <FormControl>
+                                                <ImagesUploads
+                                                    multiple={false}
+                                                    location='vehicles/cover-images'
+                                                    value={[field.value ?? []]}
+                                                    onChange={(urls) => field.onChange(urls[0])}
+                                                    onRemove={() => field.onChange('')}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
                     </form>
                 </Form>
