@@ -338,6 +338,7 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                                                 selectedValue={formattedCategories.find((category) => category.id === field.value)?.value ?? ''}
                                             ></ComboBox>
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -356,9 +357,11 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                                                     const selectedSubCategory = formattedSubCategories.find((subcategory) => subcategory.value === slug)
                                                     field.onChange(selectedSubCategory?.id ?? null)
                                                 }} 
+                                                
                                                 selectedValue={formattedSubCategories.find((subcategory) => subcategory.id === field.value)?.value ?? ''}
                                             ></ComboBox>
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -447,19 +450,11 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                                             <div className='flex item-center space-x-4'>
                                                 <FormControl>
                                                     <Input 
-                                                        type="number" 
+                                                        type="text" 
                                                         disabled={isSubmitting}
                                                         placeholder="Vehicle Mileage here.."
                                                         {...field}
                                                         value={field.value ?? ''} // Ensure value is never `null`
-                                                        onChange={(e) => {
-                                                            const value = e.target.value;
-
-                                                            // Handle empty string or numeric values
-                                                            if (value === '' || !isNaN(Number(value))) {
-                                                            field.onChange(value === '' ? '' : Number(value));
-                                                            }
-                                                        }}
                                                     />
                                                 </FormControl>
                                             </div>
@@ -567,7 +562,7 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                                                 <ImagesUploads
                                                     multiple={false}
                                                     location='vehicles/cover-images'
-                                                    value={[field.value ?? []]}
+                                                    value={field.value ? [field.value] : []}
                                                     onChange={(urls) => field.onChange(urls[0])}
                                                     onRemove={() => field.onChange('')}
                                                 />
@@ -575,6 +570,35 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                                         </FormItem>
                                     )}
                                 />
+                            </div>
+
+                            <div className="col-span-3">
+                                <FormField
+                                    control={form.control}
+                                    name='images'
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Vehicle Gallery</FormLabel>
+                                            <FormControl>
+                                                <ImagesUploads
+                                                    multiple={true}
+                                                    location='vehicles/images'
+                                                    value={field.value}
+                                                    onChange={(urls) => field.onChange(urls)}
+                                                    onRemove={(url) => field.onChange(field.value.filter((item) => item !== url))}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className='col-span-3 flex justify-end items-center'>
+                                <Button 
+                                    type="submit"
+                                    size={'sm'}
+                                    //disabled={isSubmitting || !isValid }
+                                >Create Vehicle</Button>
                             </div>
                         </div>
                     </form>

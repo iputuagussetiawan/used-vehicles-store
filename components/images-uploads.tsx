@@ -7,8 +7,10 @@ import { useDropzone } from 'react-dropzone'
 import { Button } from './ui/button';
 import { toast } from 'sonner';
 import {storage} from "@/config/firebase.config";
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { set } from 'date-fns';
+import { on } from 'events';
+import UploadingProgressStatus from './uploading-progress';
 
 
 interface ImagesUploadsProps {
@@ -26,9 +28,10 @@ interface UploadProgress {
 const ImagesUploads = ({multiple=true, onChange, onRemove, value, location}: ImagesUploadsProps) => {
     const [isMounted, setIsMounted] =useState(false);
     const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
-
+    console.log(multiple)
     const onDrop=async(acceptedFiles:File[])=>{
         if(acceptedFiles.length === 0) return
+        
         if(!multiple && acceptedFiles.length > 1) {
             toast.error("Error", {
                 description: "You can only upload one image",
@@ -36,6 +39,7 @@ const ImagesUploads = ({multiple=true, onChange, onRemove, value, location}: Ima
             
             return;
         }
+        
         onUpload(acceptedFiles);
     }
 
@@ -96,7 +100,18 @@ const ImagesUploads = ({multiple=true, onChange, onRemove, value, location}: Ima
             });
         }
     };
-    const onDelete=()=>{}
+    const onDelete=(url:string)=>{
+        const fileRef = ref(storage, url);
+        deleteObject(fileRef).then(() => {
+            onRemove(url);
+            toast.success("Image Deleted", {
+                description: "Image deleted successfully",});
+        }).catch((error) => {
+            toast.error("Error deleting image", {
+                description: (error as Error).message,
+            });
+        })
+    }
 
 
     useEffect(() => {
@@ -118,8 +133,10 @@ const ImagesUploads = ({multiple=true, onChange, onRemove, value, location}: Ima
                     <input {...getInputProps()} />
                     {
                         Object.keys(uploadProgress).length > 0 ? (
-                            <div>
-                                upload progress
+                            <div className='flex flex-row gap-2'>
+                                {Object.entries(uploadProgress).map(([fileName, progress]) => (
+                                    <UploadingProgressStatus key={fileName} progress={progress} />
+                                ))}
                             </div>
                         ):<div className='text-neutral-500 flex items-center justify-center flex-col gap-4'>
                             <ImagePlus className='h-10 w-10' />
@@ -144,9 +161,12 @@ const ImagesUploads = ({multiple=true, onChange, onRemove, value, location}: Ima
                                 priority
                             />
                             <div className='absolute top-2 right-2 cursor-pointer'>
-                                <Button 
+                                <Button
+                                    type='button'
+                                    onClick={() => onDelete(url)}
                                     size={"icon"}
-                                    variant={"destructive"}    
+                                    variant={"destructive"} 
+                                    className='cursor-pointer'   
                                 >
                                     <Trash2 className='h-4 w-4' />
                                 </Button>
