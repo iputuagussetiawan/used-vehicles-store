@@ -17,16 +17,16 @@ export const POST=async(req:Request)=>{
             model,
             year,
             price,
-            // categoryId: "",
-            // subCategoryId: "",
+            categoryId,
+            subCategoryId,
             coverImage,
             images,
             location,
             state,
             district,
             postalCode,
-            // engine: "",
-            // transmission: "",
+            engine,
+            transmission,
             mileage,
             report,
         }=body;
@@ -36,16 +36,16 @@ export const POST=async(req:Request)=>{
             !model||
             !year||
             !price||
-            // categoryId: "",
-            // subCategoryId: "",
+            !categoryId||
+            !subCategoryId||
             !coverImage||
             !images||
             !location||
             !state||
             !district||
             !postalCode||
-            // engine: "",
-            // transmission: "",
+            !engine||
+            !transmission||
             !mileage||
             !report
         ){
@@ -59,8 +59,8 @@ export const POST=async(req:Request)=>{
                 model,
                 year,
                 price,
-                categoryId: "",
-                subCategoryId: "",
+                categoryId,
+                subCategoryId,
                 coverImage,
                 images:serializedImages,
                 ownerId:userId,
@@ -68,8 +68,8 @@ export const POST=async(req:Request)=>{
                 state,
                 district,
                 postalCode,
-                engine: "",
-                transmission: "",
+                engine,
+                transmission,
                 mileage,
                 report:report || "low-mileage",
             },

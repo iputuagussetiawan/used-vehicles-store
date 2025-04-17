@@ -39,8 +39,8 @@ const ComboBox = ({items, placeholder="Select an item", onSelect, selectedValue=
         </PopoverTrigger>
         <PopoverContent className={`w-[${width}] p-0`}>
           <Command>
-            <CommandInput placeholder="Search Here..." />
             <CommandList>
+              <CommandInput placeholder="Search Here..." />
               <CommandEmpty>No Item found.</CommandEmpty>
               <CommandGroup>
                 {items.map((item) => (
@@ -50,6 +50,7 @@ const ComboBox = ({items, placeholder="Select an item", onSelect, selectedValue=
                     onSelect={(currentValue) => {
                       setValue(currentValue === value ? "" : currentValue)
                       setOpen(false)
+                      onSelect(currentValue === value ? "" : currentValue)
                     }}
                   >
                     <Check

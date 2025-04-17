@@ -1,3 +1,4 @@
+
 import CustomBreadcrumb from '@/components/custom-breadcrumb'
 import React from 'react'
 import FlexBox from '@/components/flex-box'
@@ -8,13 +9,31 @@ import { Plus } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { auth } from '@clerk/nextjs/server'
 import AllVehiclesToggleSwitch from './_components/toggle-switch'
+import { redirect } from 'next/navigation'
+import { getVehiclesById } from '@/actions/get-vehicles-by-id'
 
-const ManageVehicles = async() => {
+
+interface ManageVehiclesProps {
+    searchParams: { allVehicles?: string };
+}
+
+const ManageVehicles = async({searchParams}:ManageVehiclesProps) => {
     const authResult = await auth();
     const {userId}=authResult
     const adminId=process.env.NEXT_PUBLIC_ADMIN_ID
 
-  return (
+   
+
+    if(!userId){
+        redirect("/sign-in")
+    }
+
+    const allVehicles=searchParams?.allVehicles==="true";
+    //console.log(allVehicles)
+    const vehicles=await getVehiclesById(userId, allVehicles);
+    console.log("Vehicles", vehicles);
+
+    return (
     <div className='flex-col space-y-4 py-4'>
         <CustomBreadcrumb 
             breadcrumbItems={[{label:'Dashboard',link:'/overview'}]}

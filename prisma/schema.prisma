@@ -31,6 +31,11 @@ model User {
   views         View[]
   notifications Notification[]
 
+  chatRoomsInitiated ChatRoom[] @relation("ChatRoomsA") // Chat rooms initiated by this user
+  chatRoomsReceived  ChatRoom[] @relation("ChatRoomsB") // Chat rooms received by this user
+  sentMessages       Message[]  @relation("SentMessages") // One-to-many: messages sent by the user
+  receivedMessages   Message[]  @relation("ReceivedMessages") // One-to-many: messages received by the user
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -58,14 +63,11 @@ model Vehicle {
   model         String
   year          Int
   price         Float
-
-  //foreign key
   categoryId    String
   subCategoryId String
   ownerId       String
- 
-  //relation
-  owner       User        @relation(fields: [ownerId], references: [id])
+
+  owner       User        @relation(fields: [ownerId], references: [clerkId])
   category    Category    @relation(fields: [categoryId], references: [id])
   subCategory SubCategory @relation(fields: [subCategoryId], references: [id])
 
@@ -84,6 +86,7 @@ model Vehicle {
   favourites    Favourite[]
   views         View[]
   notifications Notification[]
+  chatRooms     ChatRoom[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -95,7 +98,7 @@ model Favourite {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   userId    String
   vehicleId String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
   vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
@@ -108,7 +111,7 @@ model View {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   userId    String
   vehicleId String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
   vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
@@ -121,7 +124,7 @@ model Notification {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
   message String
   userId  String
-  user    User   @relation(fields: [userId], references: [id])
+  user    User   @relation(fields: [userId], references: [clerkId])
 
   type   String
   status String @default("pending")
@@ -130,6 +133,55 @@ model Notification {
   vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
 
   isRead Boolean? @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ChatRoom {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  userAId        String
+  userBId        String
+  chatRoomName   String
+  chatProfilePic String
+
+  vehicleId String?
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+
+  userA User @relation("ChatRoomsA", fields: [userAId], references: [clerkId])
+  userB User @relation("ChatRoomsB", fields: [userBId], references: [clerkId])
+
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([userAId, userBId])
+}
+
+model Message {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  chatRoomId String
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+
+  senderId String
+  sender   User   @relation("SentMessages", fields: [senderId], references: [clerkId], onDelete: Cascade) // Relation for sent messages
+
+  receiverId String
+  receiver   User   @relation("ReceivedMessages", fields: [receiverId], references: [clerkId], onDelete: Cascade) // Relation for received messages
+
+  content   String
+  delivered Boolean @default(false)
+  read      Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  firstName String
+  lastName  String
+  message   String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
