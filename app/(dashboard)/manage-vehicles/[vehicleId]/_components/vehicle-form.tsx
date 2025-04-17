@@ -27,6 +27,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { indiaStatesAndDistricts, indonesiaStatesAndDistricts } from '@/lib/helpers';
 import ImagesUploads from '@/components/images-uploads';
+import { toast } from 'sonner';
+import axios from 'axios';
 interface VehicleFormProps {
     initialData:Vehicle | null;
     categories:Category[] | null;
@@ -38,8 +40,8 @@ const formSchema= z.object({
     model: z.string().min(1, {message:"Model is required"}),
     year:z.number().int({message:"Year must be a number"}).min(1900,{message:"Year must be at least 1900"}).max(new Date().getFullYear(),{message:`Year must be at most ${new Date().getFullYear()}`}).nullable(),
     price:z.number().min(0,{message:"Price must be at least 0"}).max(10000000000,{message:"Price must be at most 10000000000"}).nullable(),
-    categoryId:z.string().min(1,{message:"Category is required"}),
-    subCategoryId:z.string().min(1,{message:"Sub-category is required"}),
+    // categoryId:z.string().min(1,{message:"Category is required"}),
+    // subCategoryId:z.string().min(1,{message:"Sub-category is required"}),
     coverImage:z.string().url({message:"Must Be a valid URL"}),
     images:z.array(z.string().url({message:"Each image Must Be a valid URL"})).nonempty({message:"At least one image is required"}),
 
@@ -49,8 +51,8 @@ const formSchema= z.object({
     district : z.string().min(1, {message:"district is required"}),
     postalCode : z.string().min(1, {message:"postalCode is required"}),
     mileage : z.string().min(1, {message:"mileage is required"}),
-    engine : z.string().min(1, {message:"engine is required"}),
-    transmission : z.string().min(1, {message:"transmission is required"}),
+    // engine : z.string().min(1, {message:"engine is required"}),
+    // transmission : z.string().min(1, {message:"transmission is required"}),
 
 })
 const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps) => {
@@ -65,23 +67,41 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
             model: "",
             year: new Date().getFullYear(),
             price: 0,
-            categoryId: "",
-            subCategoryId: "",
+            // categoryId: "",
+            // subCategoryId: "",
             coverImage: "",
             images: [],
             location: "",
             state: "",
             district: "",
             postalCode: "",
-            engine: "",
-            transmission: "",
+            // engine: "",
+            // transmission: "",
             mileage: "",
             report: "low-mileage",
         }
     })
 
-    const obSubmit=async(data:z.infer<typeof formSchema>)=>{
-        console.log(data)
+    const onSubmit=async(data:z.infer<typeof formSchema>)=>{
+        try {
+            if(initialData){
+                //update the vehicle
+                await axios.patch(`/api/vehicles/${params.vehicleId}`,data);
+                toast.success("Updated", {description:toastMessage});
+                router.push("/manage-vehicles");
+                router.refresh();
+            }else{
+                //create a new vehicle
+                await axios.post("/api/vehicles",data);
+                toast.success("Created", {description:toastMessage});
+                router.push("/manage-vehicles");
+                router.refresh();
+            }
+        } catch (error) {
+            toast.error("Something went wrong", {
+                description: (error as Error).message
+            });
+        }
     }
 
     const reportOptions=[
@@ -222,7 +242,7 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
 
                 <Separator className='my-4' />
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(obSubmit)} className='space-y-8 w-full p-4 py-6 bg-neutral-50/60 rounded-lg'>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8 w-full p-4 py-6 bg-neutral-50/60 rounded-lg'>
                         <div className='grid align-items-center grid-cols-1 md:grid-cols-3 gap-8'>
                             <FormField 
                                 control={form.control}
@@ -321,50 +341,9 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                                 )}
                             />
 
-                            <FormField
-                                control={form.control}
-                                name='categoryId'
-                                render={({ field }) => (
-                                    <FormItem className='flex-col flex space-y-4'>
-                                        <FormLabel>Category</FormLabel>
-                                        <FormControl>
-                                            <ComboBox
-                                                items={formattedCategories} 
-                                                placeholder='Select a category' 
-                                                onSelect={(slug)=>{
-                                                    const selectedCategory = formattedCategories.find((category) => category.value === slug)
-                                                    field.onChange(selectedCategory?.id ?? null)
-                                                }} 
-                                                selectedValue={formattedCategories.find((category) => category.id === field.value)?.value ?? ''}
-                                            ></ComboBox>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                           
 
-                            <FormField
-                                control={form.control}
-                                name='subCategoryId'
-                                render={({ field }) => (
-                                    <FormItem className='flex-col flex space-y-4'>
-                                        <FormLabel>Sub Category</FormLabel>
-                                        <FormControl>
-                                            <ComboBox
-                                                items={formattedSubCategories} 
-                                                placeholder='Select a sub-category' 
-                                                onSelect={(slug)=>{
-                                                    const selectedSubCategory = formattedSubCategories.find((subcategory) => subcategory.value === slug)
-                                                    field.onChange(selectedSubCategory?.id ?? null)
-                                                }} 
-                                                
-                                                selectedValue={formattedSubCategories.find((subcategory) => subcategory.id === field.value)?.value ?? ''}
-                                            ></ComboBox>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                           
 
                             <FormField 
                                 control={form.control}
@@ -386,59 +365,6 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                                 )}
                             />
 
-                            <FormField 
-                                control={form.control}
-                                name="transmission"
-                                render={({field})=>(
-                                    <FormItem>
-                                        <FormLabel>Transmission</FormLabel>
-                                        <FormControl>
-                                            <RadioGroup defaultValue="automatic" className='grid grid-cols-2 gap-2 border p-2 rounded-lg'>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="automatic" id="automatic" />
-                                                    <Label htmlFor="automatic" className='text-sm font-medium'>Automatic</Label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="manual" id="manual" />
-                                                    <Label htmlFor="manual" className='text-sm font-medium'>Manual</Label>
-                                                </div>
-                                            </RadioGroup>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField 
-                                control={form.control}
-                                name="transmission"
-                                render={({field})=>(
-                                    <FormItem>
-                                        <FormLabel>Engine Type</FormLabel>
-                                        <FormControl>
-                                            <RadioGroup defaultValue="ev" className='grid grid-cols-2 gap-2 border p-2 rounded-lg'>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="ev" id="ev" />
-                                                    <Label htmlFor="ev" className='text-sm font-medium'>EV</Label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="hybrid" id="hybrid" />
-                                                    <Label htmlFor="hybrid" className='text-sm font-medium'>Hybrid</Label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="petrol" id="petrol" />
-                                                    <Label htmlFor="petrol" className='text-sm font-medium'>Petrol</Label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="diesel" id="diesel" />
-                                                    <Label htmlFor="diesel" className='text-sm font-medium'>Diesel</Label>
-                                                </div>
-                                            </RadioGroup>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
 
                             <div>
                                 <FormField 
