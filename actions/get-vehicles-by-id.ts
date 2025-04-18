@@ -1,12 +1,12 @@
 import { db } from "@/lib/db";
 import {
-  Category,
-  Favourite,
-  Notification,
-  SubCategory,
-  User,
-  Vehicle,
-  View,
+    Category,
+    Favourite,
+    Notification,
+    SubCategory,
+    User,
+    Vehicle,
+    View,
 } from "@prisma/client";
 
 

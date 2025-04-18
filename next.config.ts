@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
       {hostname: 'cdn.pixabay.com'},
       {hostname: 'thumbs.dreamstime.com'},
       {hostname: 'firebase.storage.googleapis.com'},
-      {hostname: 'firebasestorage.googleapis.com'}
+      {hostname: 'firebasestorage.googleapis.com'},
+      {hostname: 'img.clerk.com'}
     ]
   }
 };
