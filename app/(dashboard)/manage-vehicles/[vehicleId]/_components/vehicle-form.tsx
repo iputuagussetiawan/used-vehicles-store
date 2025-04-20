@@ -104,6 +104,38 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
         }
     }
 
+    const updateStatus=async(newStatus:"pending" | "approved" | "rejected")=>{
+        try {
+            setLoadingButton(newStatus);
+            await axios.patch(`/api/vehicles/${params.vehicleId}/status`,{status:newStatus});
+            toast.success("Updated", {description:`Vehicle Status updated to :${newStatus}  successfully`});
+        } catch (error) {
+            toast.error("Something went wrong", {
+                description: (error as Error).message
+            })
+        }finally{
+            setLoadingButton(null);
+            router.refresh();
+        }
+    }
+
+    const onDelete = async () => {
+        try {
+            const response = await axios.delete(`/api/vehicles/${params?.vehicleId}`);
+            toast.success("Deleted", {
+                description: "Vehicle deleted successfully",
+            });
+            router.push("/manage-vehicles");                
+
+        } catch (error) {
+            toast.error("Something went wrong", {
+                description: (error as Error).message,
+            });            
+        } finally {       
+            router.refresh();
+        }
+    }
+
     const reportOptions=[
         {value:"low-mileage",label:"Low Mileage"},
         {value:"no-accidents",label:"No Accidents"},
@@ -179,6 +211,8 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                     (districtObj) =>districtObj.district
                 ) || [];
 
+                setDistrictOptions(districts);
+
                 if(selectedDistrict){
                     const selectedDistrictObject = selectedStateObject?.districts.find(item => item.district === selectedDistrict);
                     const postalCode = selectedDistrictObject?.postalCodes[0].toString() || "";
@@ -213,24 +247,43 @@ const VehicleForm = ({initialData, categories, subCategories}: VehicleFormProps)
                     <Heading title={title} description={description} />
                     {initialData && (
                         <FlexBox className='justify-center gap-2'>
-                            <Button className='cursor-pointer' size={"icon"} variant={"destructive"}>
+                            <Button 
+                                onClick={onDelete}
+                                className='cursor-pointer' 
+                                size={"icon"} 
+                                variant={"destructive"}>
                                 <Trash2 className='h-4 w-4' />
                             </Button>
                             {/* admin action button */}
                             {userId === process.env.NEXT_PUBLIC_ADMIN_ID && (
                                 <FlexBox className='justify-center gap-2'>
-                                    <Button size={"sm"} variant={"outline"} className={cn(" cursor-pointer  text-gray-900 border-gray-900", initialData?.status==="pending" && "bg-gray-100 shadow-lg shadow-gray-100")}>
+                                    <Button 
+                                        size={"sm"} 
+                                        variant={"outline"} 
+                                        onClick={() => updateStatus("pending")}
+                                        disabled={loadingButton === "pending"} 
+                                        className={cn(" cursor-pointer  text-gray-900 border-gray-900", initialData?.status==="pending" && "bg-gray-900 text-white shadow-lg shadow-gray-100")}>
                                         {loadingButton === "pending" ? 
                                             <Loader2 className='h-4 w-4 animate-spin text-gray-900' /> : "Pending"
                                         }
                                     </Button>
-                                    <Button size={"sm"} variant={"outline"} className={cn(" cursor-pointer  text-green-900 border-green-400", initialData?.status==="pending" && "bg-gray-100 shadow-lg shadow-gray-100")}>
-                                        {loadingButton === "pending" ? 
+                                    <Button 
+                                        size={"sm"} 
+                                        variant={"outline"} 
+                                        onClick={() => updateStatus("approved")}
+                                        disabled={loadingButton === "approved"} 
+                                        className={cn(" cursor-pointer  text-green-900 border-green-400", initialData?.status==="approved" && "bg-green-900 border-green-900 text-white shadow-lg shadow-gray-100")}>
+                                        {loadingButton === "approved" ? 
                                             <Loader2 className='h-4 w-4 animate-spin text-gray-900' /> : "Approve"
                                         }
                                     </Button>
-                                    <Button size={"sm"} variant={"outline"} className={cn(" cursor-pointer  text-red-900 border-red-400", initialData?.status==="pending" && "bg-gray-100 shadow-lg shadow-gray-100")}>
-                                        {loadingButton === "pending" ? 
+                                    <Button 
+                                        size={"sm"} 
+                                        variant={"outline"} 
+                                        onClick={() => updateStatus("rejected")}
+                                        disabled={loadingButton === "reject"} 
+                                        className={cn(" cursor-pointer  text-red-900 border-red-400", initialData?.status==="rejected" && "bg-red-900 border-red-900 text-white shadow-lg shadow-gray-100")}>
+                                        {loadingButton === "rejected" ? 
                                             <Loader2 className='h-4 w-4 animate-spin text-gray-900' /> : "Reject"
                                         }
                                     </Button>

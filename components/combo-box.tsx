@@ -20,7 +20,7 @@ interface ComboBoxProps {
 }
 const ComboBox = ({items, placeholder="Select an item", onSelect, selectedValue="", width="275px"}: ComboBoxProps) => {
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
+  const [value, setValue] = useState(selectedValue)
 
   const currentValue=value? items?.find(item => item.value === value)?.label : placeholder
   return (

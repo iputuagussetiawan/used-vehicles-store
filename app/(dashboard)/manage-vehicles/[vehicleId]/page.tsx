@@ -8,24 +8,26 @@ import { getCategories } from '@/actions/get-categories';
 import { getSubCategories } from '@/actions/get-sub-categories';
 
 const ManageVehicle = async ({ params }: { params: { vehicleId: string } }) => {
-    const {vehicleId} = await params;
+    const {vehicleId} = params;
     const authResult = await auth();
     const {userId}=authResult
     if(!userId){
         redirect("/sign-in")
     }
 
-    let vehicle: null | Vehicle=null
-    const validObjectRegex=/^[0-9a-fA-F]{24}$/;
-    if(validObjectRegex.test(vehicleId)){
-        const vehicle=await getVehicleById(vehicleId);
-    }
+    console.log(vehicleId)
+
+    // let vehicle: null | Vehicle=null
+    // const validObjectRegex=/^[0-9a-fA-F]{24}$/;
+    const vehicle=await getVehicleById(vehicleId);
+    // if(validObjectRegex.test(vehicleId)){
+    // }
 
     const categories=await getCategories();
     const subCategories=await getSubCategories();
 
     // const vehicle=await getVehicleById(vehicleId);
-    // console.log(vehicle);
+    console.log(vehicle);
     // console.log(categories);
     // console.log(subCategories);
     return (
