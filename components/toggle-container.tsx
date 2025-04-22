@@ -14,10 +14,11 @@ import {
 import { LayoutDashboard } from "lucide-react"
 import MobileNavbar from "./mobile-navbar"
 import NotificationActions from "./notification-actions"
+import { Notification } from '@prisma/client'
 
 
 interface ToggleContainerProps {
-    notifications?:[]
+    notifications?:Notification[]
 }
 
 const ToggleContainer = ({notifications}:ToggleContainerProps) => {
@@ -26,7 +27,7 @@ const ToggleContainer = ({notifications}:ToggleContainerProps) => {
         <div className="flex items-center gap-4">
             {isSignedIn?<div className="flex items-center gap-2">
                 {/* notification actions*/}
-                <NotificationActions/>
+                <NotificationActions notifications={notifications}/>
                 <UserButton/>
             </div>:<div className="flex items-center gap-4">
                 <Link href={"/sign-in"}>

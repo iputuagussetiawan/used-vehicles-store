@@ -4,9 +4,10 @@ import React from 'react'
 import LogoContainer from './logo-container'
 import NavbarRoutes from './navbar-routes'
 import ToggleContainer from './toggle-container'
+import { Notification } from '@prisma/client'
 
 interface HeaderClientProps {
-    notifications?:[]
+    notifications?:Notification[]
 }
 const HeaderClient = ({notifications}:HeaderClientProps) => {
     return (
