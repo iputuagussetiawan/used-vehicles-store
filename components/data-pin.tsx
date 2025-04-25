@@ -29,8 +29,6 @@ interface DataPinProps{
 
 const DataPin = ({vehicle} : DataPinProps) => {
 
-    console.log(vehicle)
-
     const {userId}=useAuth()
 
     const [isMounted,setIsMounted]=useState(false)
@@ -69,7 +67,11 @@ const DataPin = ({vehicle} : DataPinProps) => {
     const handleNavigation=()=>{
         router.push(`/search/${vehicle.id}`)
     }
-    const FavoriteIcon=isFavourite? HeartIcon : Heart
+
+    
+
+    const checkFavorite= vehicle.favourites && vehicle.favourites.some((data : any)=>data.userId===userId)
+    const FavoriteIcon=isFavourite? Heart : Heart
 
     useEffect(()=>{
         setIsMounted(true)
@@ -117,7 +119,7 @@ const DataPin = ({vehicle} : DataPinProps) => {
                         onClick={toggleFavourites}
                         disabled={isLoading}
                     >
-                        <FavoriteIcon className={cn('w-4 h-4', isFavourite ? 'text-red-500' : 'text-muted-foreground')} />
+                        <FavoriteIcon className={cn('w-4 h-4', checkFavorite ? 'text-red-500' : 'text-muted-foreground')} />
                     </Button>
                 </FlexBox>
                 <CardDescription className='px-4 -mt-1'>
