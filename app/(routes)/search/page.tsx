@@ -30,7 +30,7 @@ const SearchVehicles = async({SearchParams}: SearchVehiclesProps) => {
     //fetch the approve vehicles
 
     const vehicles=await getApproveVehicles({ ...SearchParams});
-    console.log(vehicles)
+    // console.log(vehicles)
     //fetch the categories
 
     const categories=await getCategories()
@@ -41,7 +41,7 @@ const SearchVehicles = async({SearchParams}: SearchVehiclesProps) => {
             <SearchByTitle/>
             {/* Filter Component */}
             <FilterComponent/>
-            <MainClient/>
+            <MainClient data={vehicles}/>
         </div>
     )
 }
