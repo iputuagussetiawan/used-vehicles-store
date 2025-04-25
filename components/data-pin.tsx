@@ -13,6 +13,8 @@ import { Dot, Eye, FileHeartIcon, Heart, HeartIcon, MapPin } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { toast } from 'sonner'
+import axios from 'axios'
 
 interface DataPinProps{
     vehicle:Vehicle &{
@@ -38,8 +40,35 @@ const DataPin = ({vehicle} : DataPinProps) => {
     const [isLoading, setIsLoading]=useState(false)
     const router=useRouter();
 
-    const toggleFavourites=()=>{}
-    const handleNavigation=()=>{}
+    const toggleFavourites=async(event:React.MouseEvent)=>{
+        event.stopPropagation();
+        if(!userId){
+            return toast.error("You must be logged in to favourite a vehicle")
+        }
+        setIsLoading(true)
+        try {
+            const response=await axios.patch(`/api/vehicles/${vehicle.id}/favourites`);
+            if(response.data.action==="added"){
+                setIsFavourite(true);
+                toast.success("Added to favourites")
+            }else{
+                setIsFavourite(false);
+                toast.success("Removed from favourites")
+            }
+
+            router.refresh();
+            
+        } catch (error) {
+            toast.error("Something went wrong",{
+                description:(error as Error).message
+            })
+        }finally{
+            setIsLoading(false)
+        }
+    }
+    const handleNavigation=()=>{
+        router.push(`/search/${vehicle.id}`)
+    }
     const FavoriteIcon=isFavourite? HeartIcon : Heart
 
     useEffect(()=>{
@@ -67,7 +96,7 @@ const DataPin = ({vehicle} : DataPinProps) => {
                         <FlexBox className='gap-4'>
                             { vehicle.favourites && vehicle.favourites.length>0 && (
                                 <FlexBox className='gap-1'>
-                                    <FileHeartIcon className='w-4 h-4 text-muted-foreground' />
+                                    <Heart className='w-4 h-4 text-muted-foreground' />
                                     <p className='text-sm text-muted-foreground'>{vehicle.favourites.length.toLocaleString("en-US")}</p>
                                 </FlexBox>
                             )}
