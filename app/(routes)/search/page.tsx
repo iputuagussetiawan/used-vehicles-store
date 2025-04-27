@@ -7,7 +7,7 @@ import FilterComponent from './_components/filter-component';
 import MainClient from '@/components/client';
 
 interface SearchVehiclesProps {
-    SearchParams: { 
+    params : { 
         make?: string;
         model?: string;
         priceFrom?: string;
@@ -26,10 +26,13 @@ interface SearchVehiclesProps {
 
 export const revalidate = 0;
 
-const SearchVehicles = async({SearchParams}: SearchVehiclesProps) => {
+const SearchVehicles = async({params }: SearchVehiclesProps) => {
     //fetch the approve vehicles
 
-    const vehicles=await getApproveVehicles({ ...SearchParams});
+    const paramsAwaited = await params;
+
+    console.log(paramsAwaited)
+    const vehicles=await getApproveVehicles({ ...paramsAwaited });
     // console.log(vehicles)
     //fetch the categories
 
@@ -40,7 +43,7 @@ const SearchVehicles = async({SearchParams}: SearchVehiclesProps) => {
             {/* Search By Title */}
             <SearchByTitle/>
             {/* Filter Component */}
-            <FilterComponent/>
+            <FilterComponent searchParams={paramsAwaited} categories={categories}/>
             <MainClient data={vehicles}/>
         </div>
     )

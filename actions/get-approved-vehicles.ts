@@ -45,6 +45,8 @@ export const getApproveVehicles=async(
         categoryId,
     }=searchParams;
 
+
+
     try {
         const query:any={
             where:{
@@ -67,16 +69,20 @@ export const getApproveVehicles=async(
             query.where.categoryId=categoryId
         }
 
+        console.log(make)
+
         if(make || model){
             query.where.AND=[
                 make && {
                     make:{
-                        contains:make
+                        contains:make,
+                        mode:"insensitive"
                     },
                 },
                 model && {
                     model:{
                         contains:model,
+                        mode:"insensitive"
                     }
                 }
             ].filter(Boolean);
@@ -90,7 +96,8 @@ export const getApproveVehicles=async(
 
         if(location){
             query.where.location={
-                contains:location
+                contains:location,
+                mode:"insensitive"
             };
         }
 
@@ -103,31 +110,36 @@ export const getApproveVehicles=async(
 
         if(report){
             query.where.report={
-                contains:report
+                contains:report,
+                mode:"insensitive"
             }
         }
 
         if(transmission){
             query.where.transmission={
-                contains:transmission
+                contains:transmission,
+                mode:"insensitive"
             }
         }
 
         if(engine){
             query.where.engine={
-                contains:engine
+                contains:engine,
+                mode:"insensitive"
             }
         }
 
         if(state){
             query.where.state={
-                contains:state
+                contains:state,
+                mode:"insensitive"
             }
         }
 
         if(district){
             query.where.district={
-                contains:district
+                contains:district,
+                 mode:"insensitive"
             }
         }
 
